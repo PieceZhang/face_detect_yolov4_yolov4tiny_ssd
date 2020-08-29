@@ -2,3 +2,4 @@
 *.weights
 *.jpg
 .idea
+__pycache__
