@@ -1,0 +1,4 @@
+*.pb
+*.weights
+*.jpg
+.idea
