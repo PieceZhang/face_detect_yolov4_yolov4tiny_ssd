@@ -11,8 +11,8 @@ from decode_np import Decode
 
 if __name__ == '__main__':
     # 验证时的分数阈值和nms_iou阈值
-    conf_thresh = 0.40
-    nms_thresh = 0.60
+    conf_thresh = 0.60
+    nms_thresh = 0.20
     input_shape = (416, 416)
     all_classes = ['face']
     timelist = []
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     # plt.show()
     # image2 = image_origin2.reshape(1, input_shape[0], input_shape[1], 3)
 
-    with tf.gfile.GFile('yolov4.pb', "rb") as pb:
+    with tf.gfile.GFile('./bkp/yolov4.pb', "rb") as pb:
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(pb.read())
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         print(op.name, op.values())
 
     """
-    已实现 71.8fps
+    5.3fps
     """
     with tf.Session(graph=graph) as sess:
         # warm up
@@ -57,11 +57,9 @@ if __name__ == '__main__':
         tempt = _.detect_image(image_origin1, draw_image=True)
         del tempt
 
-        timelist.append(time.time())  # time 0
-
         _decode = Decode(conf_thresh, nms_thresh, input_shape, all_classes, graph, iftiny=False)
+        timelist.append(time.time())  # time 0
         image, boxes, scores, classes = _decode.detect_image(image_origin2, draw_image=True)
-
         timelist.append(time.time())  # time 1
 
         # stop timing

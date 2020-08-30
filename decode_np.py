@@ -16,6 +16,7 @@ class Decode(object):
         self.all_classes = all_classes
         self.num_classes = len(self.all_classes)
         self.input = graph.get_tensor_by_name('inputs:0')  # shape=(?, 416, 416, 3)
+        self.output = graph.get_tensor_by_name('output_boxes:0')
         self.iftiny = iftiny
         if iftiny:
             self.output_s = graph.get_tensor_by_name('detector/yolo-v4-tiny/Reshape:0')  # small: (?,507,6) ->13*13*3=507
@@ -24,7 +25,6 @@ class Decode(object):
             self.output_s = graph.get_tensor_by_name('detector/yolo-v4/Reshape_8:0')  # small: (?,507,6) ->13*13*3=507
             self.output_m = graph.get_tensor_by_name('detector/yolo-v4/Reshape_4:0')  # medium: (?,2028,6) ->26*26*3=2028
             self.output_l = graph.get_tensor_by_name('detector/yolo-v4/Reshape:0')  # large: (?,8112,6) ->52*52*3=8112
-        self.output = graph.get_tensor_by_name('output_boxes:0')
 
     # 处理一张图片
     def detect_image(self, image, draw_image):
@@ -35,43 +35,43 @@ class Decode(object):
             self.draw(image, boxes, scores, classes)
         return image, boxes, scores, classes
 
-    # 多线程后处理
-    def multi_thread_post(self, batch_img, outs, i, draw_image, result_image, result_boxes, result_scores, result_classes):
-        a1 = np.reshape(outs[0][i], (1, self.input_shape[0] // 32, self.input_shape[1] // 32, 3, 5 + self.num_classes))
-        a2 = np.reshape(outs[1][i], (1, self.input_shape[0] // 16, self.input_shape[1] // 16, 3, 5 + self.num_classes))
-        a3 = np.reshape(outs[2][i], (1, self.input_shape[0] // 8, self.input_shape[1] // 8, 3, 5 + self.num_classes))
-        boxes, scores, classes = self._yolo_out([a1, a2, a3], batch_img[i].shape)
-        if boxes is not None and draw_image:
-            self.draw(batch_img[i], boxes, scores, classes)
-        result_image[i] = batch_img[i]
-        result_boxes[i] = boxes
-        result_scores[i] = scores
-        result_classes[i] = classes
-
-    # 处理一批图片
-    def detect_batch(self, batch_img, draw_image):
-        batch_size = len(batch_img)
-        result_image, result_boxes, result_scores, result_classes = [None] * batch_size, [None] * batch_size, [None] * batch_size, [None] * batch_size
-        batch = []
-
-        for image in batch_img:
-            pimage = self.process_image(np.copy(image))
-            batch.append(pimage)
-        batch = np.concatenate(batch, axis=0)
-        # outs = self._yolo.predict(batch)
-        outs = tf.get_default_session().run(self.output, feed_dict={self.input: batch})
-
-        # 多线程
-        threads = []
-        for i in range(batch_size):
-            t = threading.Thread(target=self.multi_thread_post, args=(
-                batch_img, outs, i, draw_image, result_image, result_boxes, result_scores, result_classes))
-            threads.append(t)
-            t.start()
-        # 等待所有线程任务结束。
-        for t in threads:
-            t.join()
-        return result_image, result_boxes, result_scores, result_classes
+    # # 多线程后处理
+    # def multi_thread_post(self, batch_img, outs, i, draw_image, result_image, result_boxes, result_scores, result_classes):
+    #     a1 = np.reshape(outs[0][i], (1, self.input_shape[0] // 32, self.input_shape[1] // 32, 3, 5 + self.num_classes))
+    #     a2 = np.reshape(outs[1][i], (1, self.input_shape[0] // 16, self.input_shape[1] // 16, 3, 5 + self.num_classes))
+    #     a3 = np.reshape(outs[2][i], (1, self.input_shape[0] // 8, self.input_shape[1] // 8, 3, 5 + self.num_classes))
+    #     boxes, scores, classes = self._yolo_out([a1, a2, a3], batch_img[i].shape)
+    #     if boxes is not None and draw_image:
+    #         self.draw(batch_img[i], boxes, scores, classes)
+    #     result_image[i] = batch_img[i]
+    #     result_boxes[i] = boxes
+    #     result_scores[i] = scores
+    #     result_classes[i] = classes
+    #
+    # # 处理一批图片
+    # def detect_batch(self, batch_img, draw_image):
+    #     batch_size = len(batch_img)
+    #     result_image, result_boxes, result_scores, result_classes = [None] * batch_size, [None] * batch_size, [None] * batch_size, [None] * batch_size
+    #     batch = []
+    #
+    #     for image in batch_img:
+    #         pimage = self.process_image(np.copy(image))
+    #         batch.append(pimage)
+    #     batch = np.concatenate(batch, axis=0)
+    #     # outs = self._yolo.predict(batch)
+    #     outs = tf.get_default_session().run(self.output, feed_dict={self.input: batch})
+    #
+    #     # 多线程
+    #     threads = []
+    #     for i in range(batch_size):
+    #         t = threading.Thread(target=self.multi_thread_post, args=(
+    #             batch_img, outs, i, draw_image, result_image, result_boxes, result_scores, result_classes))
+    #         threads.append(t)
+    #         t.start()
+    #     # 等待所有线程任务结束。
+    #     for t in threads:
+    #         t.join()
+    #     return result_image, result_boxes, result_scores, result_classes
 
     # 处理视频
     def detect_video(self, video):
@@ -246,8 +246,8 @@ class Decode(object):
             anchors = [[10, 14], [23, 27], [37, 58], [81, 82], [135, 169], [344, 319]]
         else:
             masks = [[6, 7, 8], [3, 4, 5], [0, 1, 2]]
-            anchors = [[12, 16], [19, 36], [40, 28], [36, 75], [76, 55],
-                       [72, 146], [142, 110], [192, 243], [459, 401]]
+            anchors = [[12, 16], [19, 36], [40, 28], [36, 75], [76, 55], [72, 146],
+                       [142, 110], [192, 243], [459, 401]]
 
         boxes, classes, scores = [], [], []
 

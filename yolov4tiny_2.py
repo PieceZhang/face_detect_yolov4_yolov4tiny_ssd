@@ -11,7 +11,7 @@ from decode_np import Decode
 
 if __name__ == '__main__':
     # 验证时的分数阈值和nms_iou阈值
-    conf_thresh = 0.20  # tiny的conf_thresh应较低
+    conf_thresh = 0.30  # tiny的conf_thresh应较低
     nms_thresh = 0.60
     input_shape = (416, 416)
     all_classes = ['face']

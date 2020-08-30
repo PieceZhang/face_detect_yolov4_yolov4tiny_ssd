@@ -98,7 +98,7 @@ if __name__ == '__main__':
     # plt.show()
     image1 = image_origin1.reshape(1, input_shape[0], input_shape[1], 3)
 
-    image_origin2 = cv2.imread('image1.jpg')
+    image_origin2 = cv2.imread('image2.jpg')
     assert image_origin2 is not None, 'Image is not found, No such file or directory'
     image_origin2 = cv2.resize(image_origin2, input_shape, interpolation=cv2.INTER_CUBIC)
     image_origin2 = cv2.cvtColor(image_origin2, cv2.COLOR_BGR2RGB)
@@ -106,7 +106,7 @@ if __name__ == '__main__':
     # plt.show()
     image2 = image_origin2.reshape(1, input_shape[0], input_shape[1], 3)
 
-    with tf.gfile.GFile('./bkp/yolov4.pb', "rb") as pb:
+    with tf.gfile.GFile('yolov4.pb', "rb") as pb:
         graph_def = tf.GraphDef()
         graph_def.ParseFromString(pb.read())
 
@@ -127,7 +127,7 @@ if __name__ == '__main__':
     output_l = graph.get_tensor_by_name('detector/yolo-v4/Reshape:0')  # large: (?,8112,6) ->52*52*3=8112
 
     """
-    参考github例程，同时使用大中小三个尺度feature map
+    参考github例程，同时使用大中小三个尺度feature map，0.12fps
     """
     with tf.Session(graph=graph) as sess:
         feed_dict1 = {node_in: image1}

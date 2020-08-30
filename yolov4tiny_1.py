@@ -77,7 +77,7 @@ if __name__ == '__main__':
     #     [[142, 110], [192, 243], [459, 401]]
     # ])
     anchors = np.array([[[81, 82], [135, 169], [344, 319]], [[10, 14], [23, 27], [37, 58]]])
-    # TODO 重新转换pb文件：tiny的json文件中mask[[3, 4, 5], [1, 2, 3]]，cfg文件中mask[[3, 4, 5], [0, 1, 2]]，应以cfg为准
+    # TODO 修改tiny的json，重新转换xml文件：tiny的json文件中mask[[3, 4, 5], [1, 2, 3]]，cfg文件中mask[[3, 4, 5], [0, 1, 2]]，应以cfg为准
     dellist = []
     timelist = []
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
     output_m = graph.get_tensor_by_name('detector/yolo-v4-tiny/Reshape_4:0')  # medium: (?,2028,6) ->26*26*3=2028
 
     """
-    慢
+    慢，13fps
     """
     with tf.Session(graph=graph) as sess:
         feed_dict1 = {node_in: image1}
