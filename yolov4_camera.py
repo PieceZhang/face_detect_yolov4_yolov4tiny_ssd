@@ -2,9 +2,6 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
-from fastnms import fastnms
-import colorsys
-import random
 import time
 from decode_np import Decode
 

@@ -16,7 +16,7 @@ class Decode(object):
         self.all_classes = all_classes
         self.num_classes = len(self.all_classes)
         self.input = graph.get_tensor_by_name('inputs:0')  # shape=(?, 416, 416, 3)
-        self.output = graph.get_tensor_by_name('output_boxes:0')
+        # self.output = graph.get_tensor_by_name('output_boxes:0')
         self.iftiny = iftiny
         if iftiny:
             self.output_s = graph.get_tensor_by_name('detector/yolo-v4-tiny/Reshape:0')  # small: (?,507,6) ->13*13*3=507
@@ -51,7 +51,8 @@ class Decode(object):
     # # 处理一批图片
     # def detect_batch(self, batch_img, draw_image):
     #     batch_size = len(batch_img)
-    #     result_image, result_boxes, result_scores, result_classes = [None] * batch_size, [None] * batch_size, [None] * batch_size, [None] * batch_size
+    #     result_image, result_boxes, result_scores, result_classes = [None] * batch_size, [None] * batch_size, \
+    #                                                                 [None] * batch_size, [None] * batch_size
     #     batch = []
     #
     #     for image in batch_img:

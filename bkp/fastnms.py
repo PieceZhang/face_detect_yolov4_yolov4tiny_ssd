@@ -125,7 +125,6 @@ def fastnms(all_pred_boxes, all_pred_scores, conf_thresh, nms_thresh, keep_top_k
     conf_scores = tf.reduce_max(cur_scores, axis=0)  # [-1, ]  每个预测框的所有类别的最高分数
     keep = tf.where(conf_scores > conf_thresh)  # 最高分数大与阈值的保留
     keep = tf.reshape(keep, (-1,))  # [-1, ]
-    # TODO fastnms中的tf函数太慢，要换掉，由操作tensor改为直接操作array
     scores = tf.gather(all_pred_scores[0], keep)  # [?, 80]
     scores = tf.transpose(scores, perm=[1, 0])  # [80, ?]
     boxes = tf.gather(all_pred_boxes[0], keep)  # [?, 4]

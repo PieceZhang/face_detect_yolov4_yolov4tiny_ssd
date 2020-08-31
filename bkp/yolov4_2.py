@@ -145,7 +145,7 @@ if __name__ == '__main__':
         output = tf.reverse(sess.run(output, feed_dict2), [1])
         # output = tf.reverse(output, [1])  # TODO 由直接run得到数值改为操作tensor构建网络，最后再run（feed_dict2)得到结果
 
-        all_pred_boxes, pred_conf, pred_prob = tf.split(output, [4, 1, 1], 2)
+        all_pred_boxes, pred_conf, pred_prob = tf.split(output, [4, 1, 1], 2)  # TODO 可能有错误！可能为[4, 5, 6]
         all_pred_scores = pred_conf * pred_prob
 
         output = fastnms(all_pred_boxes, all_pred_scores, conf_thresh, nms_thresh, keep_top_k, nms_top_k)
