@@ -127,11 +127,13 @@ class Decode(object):
             # bbox_thick = 1 if min(image_h, image_w) < 400 else 2
             bbox_thick = 1
             cv2.rectangle(image, (left, top), (right, bottom), bbox_color, bbox_thick)
-            bbox_mess = '%s: %.2f' % (self.all_classes[cl], score)
-            t_size = cv2.getTextSize(bbox_mess, 0, 0.5, thickness=1)[0]
-            cv2.rectangle(image, (left, top), (left + t_size[0], top - t_size[1] - 3), bbox_color, -1)
-            cv2.putText(image, bbox_mess, (left, top - 2), cv2.FONT_HERSHEY_SIMPLEX,
-                        0.5, (0, 0, 0), 1, lineType=cv2.LINE_AA)
+
+            # show classes and scores
+            # bbox_mess = '%s: %.2f' % (self.all_classes[cl], score)
+            # t_size = cv2.getTextSize(bbox_mess, 0, 0.5, thickness=1)[0]
+            # cv2.rectangle(image, (left, top), (left + t_size[0], top - t_size[1] - 3), bbox_color, -1)
+            # cv2.putText(image, bbox_mess, (left, top - 2), cv2.FONT_HERSHEY_SIMPLEX,
+            #             0.5, (0, 0, 0), 1, lineType=cv2.LINE_AA)
 
     def process_image(self, img):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)

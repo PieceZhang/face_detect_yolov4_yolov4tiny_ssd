@@ -40,8 +40,8 @@ if __name__ == '__main__':
         )
 
     # 打印网络结构
-    for op in graph.get_operations():
-        print(op.name, op.values())
+    # for op in graph.get_operations():
+    #     print(op.name, op.values())
 
     """
     已实现 11.8fps
@@ -62,7 +62,20 @@ if __name__ == '__main__':
             time_start = time.time()  # start
             image, boxes, scores, classes = _decode.detect_image(frame_origin, draw_image=True)
             time_stop = time.time()  # stop
-            print('fps: ', 1 / (time_stop-time_start))
+
+            cost_time = time_stop - time_start
+            print('fps: ', 1 / cost_time)
+
+            image = cv2.putText(image, 'Model: YOLOv4', (10, 25),
+                                cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)
+            image = cv2.putText(image, 'Device: CPU', (10, 50),
+                                cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)
+            image = cv2.putText(image, 'Cost: {:2.2f} ms'.format(cost_time),
+                                (10, 75), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)
+            image = cv2.putText(image,
+                                'FPS: {:2.2f}'.format(1 / cost_time) if cost_time > 0 else 'FPS: --',
+                                (10, 100), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)
+
             cv2.imshow("capture", image)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break

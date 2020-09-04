@@ -3,3 +3,4 @@
 *.jpg
 .idea
 __pycache__
+landmark_model
