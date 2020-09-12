@@ -5,6 +5,14 @@ from tensorflow.contrib import slim
 def pad2d(x, pad):
     return tf.pad(x, paddings=[[0, 0], [pad, pad], [pad, pad], [0, 0]])
 
+def l2norm(x, scale, trainable=True, scope="L2Normalization"):
+    n_channels = x.get_shape().as_list()[-1]
+    l2_norm = tf.nn.l2_normalize(x, [3], epsilon=1e-12)
+    with tf.variable_scope(scope):
+        gamma = tf.get_variable("gamma", shape=[n_channels, ], dtype=tf.float32,
+                                initializer=tf.constant_initializer(scale),
+                                trainable=trainable)
+        return l2_norm * gamma
 
 class SSDnet(object):
     def __init__(self):
@@ -37,34 +45,33 @@ class SSDnet(object):
             net = slim.conv2d(net, 512, 3, 1, scope='conv5_1')
             net = slim.conv2d(net, 512, 3, 1, scope='conv5_2')
             net = slim.conv2d(net, 512, 3, 1, scope='conv5_3')
-            net = slim.max_pool2d(net, 3, stride=1, scope='pool4')
+            net = slim.max_pool2d(net, 3, stride=1, scope='pool5')
             print(net)
 
             # SSD layers
             net = slim.conv2d(net, 1024, 3, dilation_rate=6, scope="conv6")
-            self.end_points["block6"] = net
-            # net = dropout(net, is_training=self.is_training)
+            # self.end_points["block6"] = net
             # block 7
             net = slim.conv2d(net, 1024, 1, scope="conv7")
-            self.end_points["block7"] = net
+            # self.end_points["block7"] = net
             # block 8
             net = slim.conv2d(net, 256, 1, scope="conv8_1x1")
             net = slim.conv2d(pad2d(net, 1), 512, 3, stride=2, scope="conv8_3x3",
                               padding="valid")
-            self.end_points["block8"] = net
+            # self.end_points["block8"] = net
             # block 9
             net = slim.conv2d(net, 128, 1, scope="conv9_1x1")
             net = slim.conv2d(pad2d(net, 1), 256, 3, stride=2, scope="conv9_3x3",
                               padding="valid")
-            self.end_points["block9"] = net
+            # self.end_points["block9"] = net
             # block 10
             net = slim.conv2d(net, 128, 1, scope="conv10_1x1")
             net = slim.conv2d(net, 256, 3, scope="conv10_3x3", padding="valid")
-            self.end_points["block10"] = net
+            # self.end_points["block10"] = net
             # block 11
             net = slim.conv2d(net, 128, 1, scope="conv11_1x1")
             net = slim.conv2d(net, 256, 3, scope="conv11_3x3", padding="valid")
-            self.end_points["block11"] = net
+            # self.end_points["block11"] = net
 
 
 if __name__ == '__main__':
