@@ -2,46 +2,14 @@ import tensorflow as tf
 from tensorflow.python.keras.layers import Conv2D, MaxPool2D, Input
 import numpy as np
 from tensorflow.python.keras.models import Model
-from anchor import ssd_anchor_one_layer, ssd_anchor_all_layer
+from SSD.anchor import ssd_anchors_all_layers
+from SSD.layer_diy import pad2d, ssd_multibox_layer
 
-def pad2d(x, pad):
-    return tf.pad(x, paddings=[[0, 0], [pad, pad], [pad, pad], [0, 0]])
-
-
-def l2norm(x, scale, trainable=True, scope="L2Normalization"):
-    n_channels = x.get_shape().as_list()[-1]
-    l2_norm = tf.nn.l2_normalize(x, [3], epsilon=1e-12)
-    with tf.variable_scope(scope):
-        gamma = tf.get_variable("gamma", shape=[n_channels, ], dtype=tf.float32,
-                                initializer=tf.constant_initializer(scale),
-                                trainable=trainable)
-        return l2_norm * gamma
-
-def ssd_multibox_layer(x, num_classes, sizes, ratios, normalization=-1, name="multibox"):
-    pre_shape = x.get_shape().as_list()[1:-1]
-    pre_shape = [-1] + pre_shape
-    with tf.variable_scope(name):
-        # l2 norm
-        if normalization > 0:
-            x = l2norm(x, normalization)
-        print(x)
-        # numbers of anchors
-        n_anchors = len(sizes) + len(ratios)
-        # location predictions
-        loc_pred = Conv2D(n_anchors, 1 if name=='conv11_2_box' else 3,
-                          activation=None, name="conv_loc")(x)  # n_anchors*4
-        loc_pred = tf.reshape(loc_pred, pre_shape + [n_anchors, 4])
-        # class prediction
-        cls_pred = Conv2D(n_anchors*num_classes, 1 if name=='conv11_2_box' else 3,
-                          activation=None, name="conv_cls")(x)
-        cls_pred = tf.reshape(cls_pred, pre_shape + [n_anchors, num_classes])
-        return cls_pred, loc_pred
 
 class SSDnet(object):
     def __init__(self):
         self.inputshape = [300, 300]
         self.input = Input(shape=[self.inputshape[0], self.inputshape[1], 3])
-        self.model = None  # from _build
         self.endpoints = {}
         self.num_classes = 1  # TODO 类别数+背景 ?
         self.no_annotation_label = 1
@@ -65,7 +33,7 @@ class SSDnet(object):
         self.normalizations = [20, -1, -1, -1, -1, -1]  # l2 norm
         self.prior_scaling = [0.1, 0.1, 0.2, 0.2]  # variance
         # build model
-        self._build()
+        self.model = self._build()
 
     def _build(self):
         with tf.variable_scope('ssd_vgg'):
@@ -139,12 +107,16 @@ class SSDnet(object):
                 predictions.append(tf.nn.softmax(cls))
                 logits.append(cls)
                 locations.append(loc)
-            print('cls:\n', logits)
-            print('loc:\n', locations)
+            print('predictions:\n', predictions)
+            print('classes:\n', logits)
+            print('locations:\n', locations)
+            model = Model(inputs=self.input, outputs=logits+locations)
+            model.summary()
+            return model
 
     def anchors(self):
         """Get sSD anchors"""
-        return ssd_anchors_all_layers(self.img_shape,
+        return ssd_anchors_all_layers(self.inputshape,
                                       self.feat_shapes,
                                       self.anchor_sizes,
                                       self.anchor_ratios,
@@ -154,4 +126,4 @@ class SSDnet(object):
 
 
 if __name__ == '__main__':
-    SSDnet()
+    SSD = SSDnet()

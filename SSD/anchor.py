@@ -1,13 +1,14 @@
 import numpy as np
 import math
 
-def ssd_anchor_one_layer(img_shape,
-                         feat_shape,
-                         sizes,
-                         ratios,
-                         step,
-                         offset=0.5,
-                         dtype=np.float32):
+
+def _ssd_anchor_one_layer(img_shape,
+                          feat_shape,
+                          sizes,
+                          ratios,
+                          step,
+                          offset=0.5,
+                          dtype=np.float32):
     """Computer SSD default anchor boxes for one feature layer.
     Determine the relative position grid of the centers, and the relative
     width and height.
@@ -37,8 +38,8 @@ def ssd_anchor_one_layer(img_shape,
     # Compute relative height and width.
     # Tries to follow the original implementation of SSD for the order.
     num_anchors = len(sizes) + len(ratios)
-    h = np.zeros((num_anchors, ), dtype=dtype)  # [n_anchors]
-    w = np.zeros((num_anchors, ), dtype=dtype)  # [n_anchors]
+    h = np.zeros((num_anchors,), dtype=dtype)  # [n_anchors]
+    w = np.zeros((num_anchors,), dtype=dtype)  # [n_anchors]
     # Add first anchor boxes with ratio=1.
     h[0] = sizes[0] / img_shape[0]
     w[0] = sizes[0] / img_shape[1]
@@ -48,8 +49,8 @@ def ssd_anchor_one_layer(img_shape,
         w[1] = math.sqrt(sizes[0] * sizes[1]) / img_shape[1]
         di += 1
     for i, r in enumerate(ratios):
-        h[i+di] = sizes[0] / img_shape[0] / math.sqrt(r)
-        w[i+di] = sizes[0] / img_shape[1] * math.sqrt(r)
+        h[i + di] = sizes[0] / img_shape[0] / math.sqrt(r)
+        w[i + di] = sizes[0] / img_shape[1] * math.sqrt(r)
     return y, x, h, w
 
 
@@ -64,10 +65,7 @@ def ssd_anchors_all_layers(img_shape,
     """
     layers_anchors = []
     for i, s in enumerate(layers_shape):
-        anchor_bboxes = ssd_anchor_one_layer(img_shape, s,
-                                             anchor_sizes[i],
-                                             anchor_ratios[i],
-                                             anchor_steps[i],
-                                             offset=offset, dtype=dtype)
+        anchor_bboxes = _ssd_anchor_one_layer(img_shape, s, anchor_sizes[i], anchor_ratios[i], anchor_steps[i],
+                                              offset=offset, dtype=dtype)
         layers_anchors.append(anchor_bboxes)
     return layers_anchors
