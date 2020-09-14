@@ -16,7 +16,7 @@ def l2norm(x, scale, trainable=True, scope="L2Normalization"):
 
 class SSDnet(object):
     def __init__(self):
-        self.inputshape = [384, 512]
+        self.inputshape = [384, 512]  # 3:4
         self.input = tf.placeholder(tf.float32, shape=[None, self.inputshape[0], self.inputshape[1], 3])
         self.num_classes = 1
         self._build()
