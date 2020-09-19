@@ -4,7 +4,7 @@ import numpy as np
 from tensorflow.python.keras.models import Model
 from SSD.anchor import ssd_anchors_all_layers
 from SSD.layer_diy import pad2d, ssd_multibox_layer
-
+from SSD.loss import ssd_losses
 
 class SSDnet(object):
     def __init__(self):
@@ -97,7 +97,7 @@ class SSDnet(object):
                 self.endpoints["conv11_2"] = net
 
             predictions = []
-            logits = []
+            classes = []  # logits
             locations = []
             for i, layer in enumerate(self.feat_layers):
                 cls, loc = ssd_multibox_layer(self.endpoints[layer], self.num_classes,
@@ -105,13 +105,14 @@ class SSDnet(object):
                                               self.anchor_ratios[i],
                                               self.normalizations[i], name=layer+"_box")
                 predictions.append(tf.nn.softmax(cls))
-                logits.append(cls)
+                classes.append(cls)
                 locations.append(loc)
-            print('predictions:\n', predictions)
-            print('classes:\n', logits)
-            print('locations:\n', locations)
-            model = Model(inputs=self.input, outputs=logits+locations)
+            model = Model(inputs=self.input, outputs=classes + locations)
             model.summary()
+            print('predictions:\n', predictions)
+            print('classes:\n', classes)
+            print('locations:\n', locations)
+            # model.compile()
             return model
 
     def anchors(self):
@@ -127,3 +128,5 @@ class SSDnet(object):
 
 if __name__ == '__main__':
     SSD = SSDnet()
+    anchor = SSD.anchors()
+    print()
