@@ -60,10 +60,11 @@ def draw(image, box):
     plt.show()
 
 image_dir = 'D:/A_科研/毕业设计/celebrity_test_200'
-workspace_dir = 'D:/D_Python code/face_detect/datasets'
+bg_dir = 'D:/A_科研/datasets/indoorCVPR_09'
+workspace_dir = './datasets'
 save_image_dir = workspace_dir + '/JPEGImages'
 save_label_dir = workspace_dir + '/labels'
-bg_dir = 'D:/A_科研/datasets/indoorCVPR_09'
+
 
 if __name__ == '__main__':
     if not os.path.isdir(workspace_dir):
@@ -115,11 +116,11 @@ if __name__ == '__main__':
                 bbox.append(int(image_json['faces'][0]['face_rectangle']['top'] * multiplier
                             + face_location[1] - face_size[1] / 2))  # ymin
                 bbox.append(int(image_json['faces'][0]['face_rectangle']['height'] * multiplier + bbox[2]))  # ymax
-                # show image and draw box
+                # show image and draw box #
                 # draw(face_image, bbox)
-                # convert to lebal
+                # convert to lebal #
                 bbox = convert(bg_size, bbox)  # convert to (x, y, w, h)
-                out_file = open('D:/D_Python code/face_detect/datasets/labels/%s.txt'
+                out_file = open(save_label_dir + '/%s.txt'
                                 % os.path.splitext(face_file)[0], 'w')
                 out_file.write(str(0) + " " + " ".join([str(a) for a in bbox]) + '\n')
                 out_file.close()
