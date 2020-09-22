@@ -10,7 +10,7 @@ import numpy as np
 def convert(s, box):
     """
     :param s: 二维元组或列表 (w, h)
-    :param box: 四维元组或列表 (xmin, xmax, ymin, ymax)
+    :param box: 四维元组或列表 (xmin, xmax, ymin, ymax) 注意顺序！
     :return: (x, y, w, h)
     """
     dw = 1. / s[0]
@@ -42,7 +42,7 @@ def de_convert(s, x, y, w, h) -> list:
 def draw(image, box):
     """
     :param image: 图片
-    :param box: 左上和右下坐标
+    :param box: (xmin, xmax, ymin, ymax) 注意顺序！
     :return: None
     """
     image = imgplt.imread(image)
