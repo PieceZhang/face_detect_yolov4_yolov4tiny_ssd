@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
         image = cv2.putText(image, 'Model: YOLOv4-tiny', (10, 25),
                             cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)
-        image = cv2.putText(image, 'Device: CPU', (10, 50),
+        image = cv2.putText(image, 'Device: GPU', (10, 50),
                             cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)
         image = cv2.putText(image, 'Cost: {:2.2f} ms'.format(cost_time),
                             (10, 75), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)

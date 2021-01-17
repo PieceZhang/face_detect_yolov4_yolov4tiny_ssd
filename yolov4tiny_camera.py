@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
             image = cv2.putText(image, 'Model: YOLOv4-tiny', (10, 25),
                                 cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)
-            image = cv2.putText(image, 'Device: CPU', (10, 50),
+            image = cv2.putText(image, 'Device: GPU', (10, 50),
                                 cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)
             image = cv2.putText(image, 'Cost: {:2.2f} ms'.format(cost_time),
                                 (10, 75), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)
@@ -75,7 +75,7 @@ if __name__ == '__main__':
                                 'FPS: {:2.2f}'.format(1 / cost_time) if cost_time > 0 else 'FPS: --',
                                 (10, 100), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 23, 255), 1)
 
-            print(image.shape[0], image.shape[1], image.shape[2])
+            # print(image.shape[0], image.shape[1], image.shape[2])
             cv2.imshow("capture", image)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break

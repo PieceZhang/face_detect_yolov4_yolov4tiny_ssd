@@ -108,25 +108,17 @@ class Decode(object):
 
     def draw(self, image, boxes, scores, classes):
         image_h, image_w, _ = image.shape
-        # 定义颜色
-        hsv_tuples = [(1.0 * x / self.num_classes, 1., 1.) for x in range(self.num_classes)]
-        colors = list(map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples))
-        colors = list(map(lambda x: (int(x[0] * 255), int(x[1] * 255), int(x[2] * 255)), colors))
+        colors = [0, 0, 255]
 
-        random.seed(0)
-        random.shuffle(colors)
-        random.seed(None)
-
-        for box, score, cl in zip(boxes, scores, classes):
+        for box, score in zip(boxes, scores):
             x0, y0, x1, y1 = box
             left = max(0, np.floor(x0 + 0.5).astype(int))
             top = max(0, np.floor(y0 + 0.5).astype(int))
             right = min(image.shape[1], np.floor(x1 + 0.5).astype(int))
             bottom = min(image.shape[0], np.floor(y1 + 0.5).astype(int))
-            bbox_color = colors[cl]
             # bbox_thick = 1 if min(image_h, image_w) < 400 else 2
             bbox_thick = 1
-            cv2.rectangle(image, (left, top), (right, bottom), bbox_color, bbox_thick)
+            cv2.rectangle(image, (left, top), (right, bottom), colors, bbox_thick)
 
             # show classes and scores
             # bbox_mess = '%s: %.2f' % (self.all_classes[cl], score)
